@@ -1,0 +1,53 @@
+{
+    "configs": [
+        {
+            "name": "canbus",
+            "port": 6001,
+            "host": "10.186.40.62"
+        },
+        {
+            "name": "gps",
+            "port": 50010,
+	        "host": "10.186.40.62"
+        },
+        {
+            "name": "oak0",
+            "port": 50010,
+	        "host": "10.186.40.62"
+        },
+        {
+            "name": "filter",
+            "port": 20001,
+	        "host": "10.186.40.62"
+        },
+        {
+            "name": "track_follower",
+            "port": 20101,
+	       "host": "10.186.40.62"
+        },
+        {
+            "name": "system_monitor",
+            "port": 20201,
+	       "host": "10.186.40.62"
+        },
+        {
+            "name": "amiga_subscriptions",
+            "subscriptions": [
+                {
+                    "uri": {
+                        "path": "/twist",
+                        "query": "service_name=canbus"
+                    },
+                    "every_n": 1
+                },
+                {
+                    "uri": {
+                        "path": "/pvt",
+                        "query": "service_name=gps"
+                    },
+                    "every_n": 1
+                }
+            ]
+        }
+    ]
+}
