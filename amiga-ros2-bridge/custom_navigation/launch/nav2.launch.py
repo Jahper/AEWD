@@ -8,8 +8,10 @@ import os
 def generate_launch_description():
     custom_nav_dir = get_package_share_directory('custom_navigation')
     params_file = os.path.join(custom_nav_dir, 'config', 'nav2_params.yaml')
+    map_file = os.path.join(custom_nav_dir, 'maps', 'empty_map.yaml')
 
     lifecycle_nodes = [
+        'map_server',
         'controller_server',
         'smoother_server',
         'planner_server',
@@ -21,6 +23,7 @@ def generate_launch_description():
     # No map_server, no amcl — GPS handles localization
 
     return LaunchDescription([
+        Node(package='nav2_map_server', executable='map_server',            output='screen',  parameters=[{'yaml_filename': map_file}]),
         Node(package='nav2_controller',    executable='controller_server',   output='screen', parameters=[params_file]),
         Node(package='nav2_smoother',      executable='smoother_server',     output='screen', parameters=[params_file]),
         Node(package='nav2_planner',       executable='planner_server',      output='screen', parameters=[params_file]),

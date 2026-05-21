@@ -227,7 +227,7 @@ global_costmap:
     ros__parameters:
       update_frequency: 1.0
       publish_frequency: 1.0
-      global_frame: odom
+      global_frame: map
       robot_base_frame: base_link
       rolling_window: true
       use_sim_time: False
@@ -258,12 +258,12 @@ global_costmap:
         inflation_radius: 0.55
       always_send_full_costmap: True
 
-# map_server:
-#   ros__parameters:
-#     use_sim_time: False
-#     # Overridden in launch by the "map" launch configuration or provided default value.
-#     # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
-#     yaml_filename: ""
+map_server:
+  ros__parameters:
+    use_sim_time: False
+    # Overridden in launch by the "map" launch configuration or provided default value.
+    # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
+    yaml_filename: "empty_map"
 
 map_saver:
   ros__parameters:
