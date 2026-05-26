@@ -16,11 +16,16 @@ RUN apt-get update && apt-get install -y git wget python3-full python3-pip vim n
     ros-${ROS_DISTRO}-tf-transformations \
     ros-${ROS_DISTRO}-ublox-gps \
     ros-${ROS_DISTRO}-robot-localization \
+<<<<<<< HEAD
     ros-${ROS_DISTRO}-nav2-bringup \
     ros-${ROS_DISTRO}-nav2-controller \
     ros-${ROS_DISTRO}-nav2-planner \
     ros-${ROS_DISTRO}-nav2-behavior-tree \
     ros-${ROS_DISTRO}-nav2-lifecycle-manager \
+=======
+    ros-${ROS_DISTRO}-navigation2 \
+    ros-${ROS_DISTRO}-nav2-bringup \
+>>>>>>> 7792b22c5720a7331874c964ae83052426fb8870
     tmux \
     rhash librhash-dev
 
