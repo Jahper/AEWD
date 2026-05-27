@@ -6,7 +6,8 @@
   <xacro:arg name="gps_link_name" default="gps_link" />
 
   <!-- CUSTOM CODE -->
-  <xacro:arg name="ublox_link_name" default="ublox_link" />
+  <xacro:arg name="left_ublox_link_name" default="left_ublox_link" />
+  <xacro:arg name="right_ublox_link_name" default="right_ublox_link" />
 
   <xacro:arg name="use_vectornav" default="false" />
 
@@ -75,8 +76,16 @@
   <!-- UBLOX RTK -->
   <xacro:ublox
     parent_link="base_link"
-    ublox_link_name="$(arg ublox_link_name)"
+    ublox_link_name="$(arg left_ublox_link_name)"
     joint_origin_xyz="-0.343 0.27301 0.5163"
+    joint_origin_rpy="0 0 0"/>
+
+
+   <!-- UBLOX RTK -->
+  <xacro:ublox
+    parent_link="base_link"
+    ublox_link_name="$(arg right_ublox_link_name)"
+    joint_origin_xyz="-0.343 -0.27301 0.5163"
     joint_origin_rpy="0 0 0"/>
   
   
