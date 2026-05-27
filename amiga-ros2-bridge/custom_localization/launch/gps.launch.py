@@ -10,10 +10,16 @@ def generate_launch_description():
 
     pkg_dir = get_package_share_directory('custom_localization')
 
-    params_file = os.path.join(
+    left_params_file = os.path.join(
         pkg_dir,
         'config',
-        'ublox.yaml'
+        'ublox_left.yaml'
+    )
+
+    right_params_file = os.path.join(
+        pkg_dir,
+        'config',
+        'ublox_right.yaml'
     )
 
     navsat_file = os.path.join(
@@ -33,17 +39,25 @@ def generate_launch_description():
         Node(
             package='ublox_gps',
             executable='ublox_gps_node',
-            name='ublox_gps',
+            name='left_ublox_gps',
+            namespace='left',
             output='screen',
-            parameters=[params_file]
+            parameters=[left_params_file]
         ),
-
         Node(
-            package='custom_localization',
-            executable='rtk_localizer',
-            name='rtk_localizer',
-            output='screen'
-        )
+            package='ublox_gps',
+            executable='ublox_gps_node',
+            name='right_ublox_gps',
+            namespace='right',
+            output='screen',
+            parameters=[right_params_file]
+        ),
+        # Node(
+        #     package='custom_localization',
+        #     executable='rtk_localizer',
+        #     name='rtk_localizer',
+        #     output='screen'
+        # )
 
         # Node(
         #     package='robot_localization',

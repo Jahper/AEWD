@@ -16,11 +16,11 @@
 #       all: true
 
 ## active set config ##
-ublox_gps:
+/left/left_ublox_gps:
   ros__parameters:
 
-    device: /dev/ttyACM0
-    frame_id: ublox_link
+    device: /dev/ttyACM1
+    frame_id: left_ublox_link
 
     debug: 0
 
