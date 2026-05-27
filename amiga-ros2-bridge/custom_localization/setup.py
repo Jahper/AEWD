@@ -40,7 +40,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
     'console_scripts': [
-        'rtk_localizer = custom_localization.rtk_localizer:main',
+        'dual_gps_heading = custom_localization.dual_gps_heading:main'
     ],
 },
 )

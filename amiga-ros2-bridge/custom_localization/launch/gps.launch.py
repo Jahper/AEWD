@@ -52,38 +52,30 @@ def generate_launch_description():
             output='screen',
             parameters=[right_params_file]
         ),
-        # Node(
-        #     package='custom_localization',
-        #     executable='rtk_localizer',
-        #     name='rtk_localizer',
-        #     output='screen'
-        # )
-
-        # Node(
-        #     package='robot_localization',
-        #     executable='navsat_transform_node',
-        #     name='navsat_transform',
-
-        #     output='screen',
-
-        #     parameters=[navsat_file],
-
-        #     remappings=[
-        #         ('gps/fix', '/fix'),
-        #         ('odometry/gps', '/odometry/gps'),
-        #         ('imu/data', '/imu')
-        #     ]
-        # ),
-
-        # Node(
-        #     package='robot_localization',
-        #     executable='ekf_node',
-        #     name='ekf_filter_node',
-
-        #     output='screen',
-
-        #     parameters=[ekf_file]
-        # )
-
-
+        Node(
+            package='custom_localization',
+            executable='dual_gps_heading',
+            name='dual_gps_heading',
+            output='screen'
+        ),
+        Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform',
+            output='screen',
+            parameters=[navsat_file],
+            remappings=[
+                ('gps/fix', '/left/fix'),
+                ('imu', '/gps/heading'),               # was 'imu/data' — wrong topic name
+                ('odometry/filtered', '/odometry/filtered'),
+            ]
+        ),
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[ekf_file]
+        ),
+       
     ])
