@@ -77,7 +77,7 @@
   <xacro:ublox
     parent_link="base_link"
     ublox_link_name="$(arg left_ublox_link_name)"
-    joint_origin_xyz="-0.343 0.27301 0.5163"
+    joint_origin_xyz="0.30508 0.56219 0.2341"
     joint_origin_rpy="0 0 0"/>
 
 
@@ -85,7 +85,7 @@
   <xacro:ublox
     parent_link="base_link"
     ublox_link_name="$(arg right_ublox_link_name)"
-    joint_origin_xyz="-0.343 -0.27301 0.5163"
+    joint_origin_xyz="0.352875765322685 -0.562186930189418 0.23410291085732"
     joint_origin_rpy="0 0 0"/>
   
   

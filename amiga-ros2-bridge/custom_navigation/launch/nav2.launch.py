@@ -23,14 +23,57 @@ def generate_launch_description():
     # No map_server, no amcl — GPS handles localization
 
     return LaunchDescription([
-        Node(package='nav2_map_server', executable='map_server',            output='screen',  parameters=[{'yaml_filename': map_file}]),
-        Node(package='nav2_controller',    executable='controller_server',   output='screen', parameters=[params_file]),
-        Node(package='nav2_smoother',      executable='smoother_server',     output='screen', parameters=[params_file]),
-        Node(package='nav2_planner',       executable='planner_server',      output='screen', parameters=[params_file]),
-        Node(package='nav2_behaviors',     executable='behavior_server',     output='screen', parameters=[params_file]),
-        Node(package='nav2_bt_navigator',  executable='bt_navigator',        output='screen', parameters=[params_file]),
-        Node(package='nav2_waypoint_follower', executable='waypoint_follower', output='screen', parameters=[params_file]),
-        Node(package='nav2_velocity_smoother', executable='velocity_smoother', output='screen', parameters=[params_file]),
+        Node(
+            package='nav2_map_server',
+            executable='map_server',
+            output='screen',
+            parameters=[
+                params_file,
+                {'yaml_filename': map_file}   # ← override the params file value
+            ]
+        ),
+        Node(
+            package='nav2_controller',    
+            executable='controller_server',   
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_smoother',      
+            executable='smoother_server',     
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_planner',       
+            executable='planner_server',      
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_behaviors',     
+            executable='behavior_server',     
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_bt_navigator',  
+            executable='bt_navigator',        
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_waypoint_follower', 
+            executable='waypoint_follower', 
+            output='screen', 
+            parameters=[params_file]
+        ),
+        Node(
+            package='nav2_velocity_smoother', 
+            executable='velocity_smoother', 
+            output='screen', 
+            parameters=[params_file]
+        ),
         Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',

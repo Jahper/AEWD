@@ -3,32 +3,32 @@
         {
             "name": "canbus",
             "port": 6001,
-            "host": "10.95.76.189"
+            "host": "10.186.40.253"
         },
         {
             "name": "gps",
             "port": 50010,
-	        "host": "10.95.76.189"
+	        "host": "10.186.40.253"
         },
         {
             "name": "oak0",
             "port": 50010,
-	        "host": "10.95.76.189"
+	        "host": "10.186.40.253"
         },
         {
             "name": "filter",
             "port": 20001,
-	        "host": "10.95.76.189"
+	        "host": "10.186.40.253"
         },
         {
             "name": "track_follower",
             "port": 20101,
-	       "host": "10.95.76.189"
+	       "host": "10.186.40.253"
         },
         {
             "name": "system_monitor",
             "port": 20201,
-	       "host": "10.95.76.189"
+	       "host": "10.186.40.253"
         },
         {
             "name": "amiga_subscriptions",
