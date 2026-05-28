@@ -5,7 +5,6 @@ from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix, Imu
 from geometry_msgs.msg import Quaternion
 from tf2_ros import Buffer, TransformListener, LookupException
-import message_filters
 
 
 def yaw_to_quaternion(yaw_rad):
@@ -31,6 +30,8 @@ class DualGPSHeading(Node):
         self.min_baseline = self.get_parameter('min_baseline_m').value
 
         self.baseline_offset_rad = None
+        self.left_fix = None
+        self.right_fix = None
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -38,13 +39,8 @@ class DualGPSHeading(Node):
 
         self.heading_pub = self.create_publisher(Imu, '/gps/heading', 10)
 
-        left_sub = message_filters.Subscriber(self, NavSatFix, '/left/fix')
-        right_sub = message_filters.Subscriber(self, NavSatFix, '/right/fix')
-
-        self.ts = message_filters.ApproximateTimeSynchronizer(
-            [left_sub, right_sub], queue_size=10, slop=0.5
-        )
-        self.ts.registerCallback(self.gps_callback)
+        self.create_subscription(NavSatFix, '/left/fix', self.left_callback, 10)
+        self.create_subscription(NavSatFix, '/right/fix', self.right_callback, 10)
 
         self.get_logger().info('DualGPSHeading node started, waiting for TF...')
 
@@ -81,23 +77,35 @@ class DualGPSHeading(Node):
             f'{math.degrees(self.baseline_offset_rad):.1f}deg from robot forward'
         )
 
-    def gps_callback(self, left_fix: NavSatFix, right_fix: NavSatFix):
+    def left_callback(self, msg):
+        self.left_fix = msg
+        self.try_compute_heading()
+
+    def right_callback(self, msg):
+        self.right_fix = msg
+        self.try_compute_heading()
+
+    def try_compute_heading(self):
         if self.baseline_offset_rad is None:
             return
-
-        if left_fix.status.status < 0 or right_fix.status.status < 0:
-            self.get_logger().warn('Invalid fix status', throttle_duration_sec=5.0)
+        if self.left_fix is None or self.right_fix is None:
+            return
+        if self.left_fix.status.status < 0 or self.right_fix.status.status < 0:
+            self.get_logger().warn(
+                'No fix on one or both antennas',
+                throttle_duration_sec=5.0
+            )
             return
 
         x, y = self.latlon_to_xy(
-            right_fix.latitude, right_fix.longitude,
-            left_fix.latitude, left_fix.longitude
+            self.right_fix.latitude, self.right_fix.longitude,
+            self.left_fix.latitude, self.left_fix.longitude
         )
 
         dist = math.hypot(x, y)
         if dist < self.min_baseline:
             self.get_logger().warn(
-                f'Measured baseline too short ({dist:.3f}m), GPS fixes too close',
+                f'Measured baseline too short ({dist:.3f}m), GPS fixes too noisy',
                 throttle_duration_sec=5.0
             )
             return
@@ -105,23 +113,20 @@ class DualGPSHeading(Node):
         bearing_enu = math.atan2(y, x)
         robot_yaw = bearing_enu - self.baseline_offset_rad
 
-        msg = Imu()
-        msg.header.stamp = left_fix.header.stamp
-        msg.header.frame_id = 'base_link'
-        msg.orientation = yaw_to_quaternion(robot_yaw)
+        imu_msg = Imu()
+        imu_msg.header.stamp = self.get_clock().now().to_msg()
+        imu_msg.header.frame_id = 'base_link'
+        imu_msg.orientation = yaw_to_quaternion(robot_yaw)
 
         yaw_variance = (0.009 / max(dist, 0.5)) ** 2
-        msg.orientation_covariance[8] = yaw_variance
+        imu_msg.orientation_covariance[8] = yaw_variance
+        imu_msg.angular_velocity_covariance[0] = -1.0
+        imu_msg.linear_acceleration_covariance[0] = -1.0
 
-        # Mark velocity and acceleration as unavailable
-        msg.angular_velocity_covariance[0] = -1.0
-        msg.linear_acceleration_covariance[0] = -1.0
-
-        self.heading_pub.publish(msg)
+        self.heading_pub.publish(imu_msg)
 
         self.get_logger().info(
-            f'Heading: {math.degrees(robot_yaw):.1f}deg | '
-            f'baseline: {dist:.3f}m',
+            f'Heading: {math.degrees(robot_yaw):.1f}deg | baseline: {dist:.3f}m',
             throttle_duration_sec=2.0
         )
 
