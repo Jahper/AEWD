@@ -54,6 +54,12 @@ def generate_launch_description():
         ),
         Node(
             package='custom_localization',
+            executable='wheel_odom',
+            name='wheel_odom',
+            output='screen'
+        ),
+        Node(
+            package='custom_localization',
             executable='dual_gps_heading',
             name='dual_gps_heading',
             output='screen'
@@ -74,8 +80,9 @@ def generate_launch_description():
             package='robot_localization',
             executable='ekf_node',
             name='ekf_filter_node',
+
             output='screen',
+
             parameters=[ekf_file]
-        ),
-       
+        )
     ])
