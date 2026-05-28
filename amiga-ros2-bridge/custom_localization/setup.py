@@ -41,6 +41,7 @@ setup(
     entry_points={
     'console_scripts': [
         'rtk_localizer = custom_localization.rtk_localizer:main',
+        'wheel_odom = custom_localization.wheel_odom:main',
     ],
 },
 )
