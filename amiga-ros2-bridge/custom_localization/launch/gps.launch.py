@@ -52,12 +52,12 @@ def generate_launch_description():
             output='screen',
             parameters=[right_params_file]
         ),
-        Node(
-            package='custom_localization',
-            executable='wheel_odom',
-            name='wheel_odom',
-            output='screen'
-        ),
+        # Node(
+        #     package='custom_localization',
+        #     executable='wheel_odom',
+        #     name='wheel_odom',
+        #     output='screen'
+        # ),
         Node(
             package='custom_localization',
             executable='dual_gps_heading',

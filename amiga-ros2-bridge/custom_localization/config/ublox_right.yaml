@@ -7,8 +7,8 @@
 
     debug: 0
 
-    rate: 1.0
-    nav_rate: 1
+    rate: 4.0
+    nav_rate: 4
 
     dynamic_model: portable
     tmode3: 0

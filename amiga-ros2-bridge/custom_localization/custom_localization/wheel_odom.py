@@ -97,7 +97,7 @@ class WheelOdometryNode(Node):
 
     def twist_callback(self, msg: TwistStamped):
         # self.update(msg)
-        self.update_raw(msg)
+        self.update(msg)
         odom_msg = self.create_odom_msg()
         self.wheel_odom_publisher.publish(odom_msg)
         self.get_logger().debug(

@@ -41,7 +41,7 @@ setup(
     entry_points={
     'console_scripts': [
         'dual_gps_heading = custom_localization.dual_gps_heading:main',
-        'wheel_odom = custom_localization.wheel_odom:main',
+        # 'wheel_odom = custom_localization.wheel_odom:main',
     ],
 },
 )
