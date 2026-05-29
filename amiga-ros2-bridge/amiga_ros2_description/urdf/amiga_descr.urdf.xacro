@@ -66,7 +66,7 @@
   <xacro:gps
     parent_link="base_link"
     gps_link_name="$(arg gps_link_name)"
-    joint_origin_xyz="-0.343 0.27301 1.0163"
+    joint_origin_xyz="0.30508 0 1.0163"
     joint_origin_rpy="0 0 0"/>
 
   <!-- SELF ADDED CODE SELF ADDED CODE UBLOX  -->
@@ -74,11 +74,13 @@
   <!-- SELF ADDED CODE SELF ADDED CODE UBLOX  -->
 
   <!-- UBLOX RTK -->
+  <!-- TODO: tijdelijk gerbuikte waarden terugzetten naar origineel! -->
   <xacro:ublox
     parent_link="base_link"
     ublox_link_name="$(arg left_ublox_link_name)"
-    joint_origin_xyz="0.30508 0.56219 0.2341"
+    joint_origin_xyz="0.30508 0 1.0163"
     joint_origin_rpy="0 0 0"/>
+    <!-- joint_origin_xyz="0.30508 0.56219 0.2341" -->
 
 
    <!-- UBLOX RTK -->
