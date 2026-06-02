@@ -1,6 +1,6 @@
 ekf_filter_node:
   ros__parameters:
-    frequency: 4.0
+    frequency: 10.0
     sensor_timeout: 0.5
     two_d_mode: true
     publish_tf: true
@@ -19,7 +19,7 @@ ekf_filter_node:
                    false, false, false]
     odom0_differential: false
 
-    imu0: /gps/heading
+    imu0: /gnss/heading
     imu0_config: [false, false, false,
                   false, false, true,
                   false, false, false,
@@ -27,13 +27,3 @@ ekf_filter_node:
                   false, false, false]
     imu0_differential: false
     imu0_remove_gravitational_acceleration: false
-    
-    odom1: /wheel/odometry
-
-    odom1_config: [
-      false, false, false,
-      false, false, false,
-      true,  true,  false,
-      false, false, true,
-      false, false, false
-    ]

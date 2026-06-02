@@ -40,7 +40,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
     'console_scripts': [
-        'dual_gps_heading = custom_localization.dual_gps_heading:main'
+        'lg580p_driver_node = custom_localization.lg580p_driver:main',
+        #'dual_gps_heading = custom_localization.dual_gps_heading:main'
         # 'wheel_odom = custom_localization.wheel_odom:main',
     ],
 },

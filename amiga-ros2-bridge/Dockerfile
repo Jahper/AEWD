@@ -21,12 +21,14 @@ RUN apt-get update && apt-get install -y git wget python3-full python3-pip vim n
     ros-${ROS_DISTRO}-nav2-planner \
     ros-${ROS_DISTRO}-nav2-behavior-tree \
     ros-${ROS_DISTRO}-nav2-lifecycle-manager \
+    ros-${ROS_DISTRO}-nmea-navsat-driver \
+    ros-${ROS_DISTRO}-gps-msgs \
     tmux \
     rhash librhash-dev
 
 # TODO: remove once you figure out why farm-ng isn't in /usr/local
 COPY requirements.txt /requirements.txt
-# RUN . /.venv/bin/activate && \
+# RUN . /.venv/bin/activate && \s
 #     pip install -r /requirements.txt
 RUN pip install -r /requirements.txt
 

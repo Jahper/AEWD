@@ -34,14 +34,9 @@ def generate_launch_description():
                 description="Name of the GPS link (gps_link or gps_antenna)",
             ),
             DeclareLaunchArgument(
-                name="left_ublox_link_name",
-                default_value="left_ublox_link",
-                description="TF frame name for the left ublox antenna",
-            ),
-            DeclareLaunchArgument(
-                name="right_ublox_link_name",
-                default_value="right_ublox_link",
-                description="TF frame name for the right ublox antenna",
+                name="lg580p_link_name",
+                default_value="lg580p_link",
+                description="TF frame name for the lg580p primairy antenna",
             ),
             DeclareLaunchArgument(
                 name="use_vectornav",
@@ -71,10 +66,8 @@ def generate_launch_description():
                                     LaunchConfiguration("use_lidar"),
                                     " gps_link_name:=",
                                     LaunchConfiguration("gps_link_name"),
-                                    " left_ublox_link_name:=",          # add
-                                    LaunchConfiguration("left_ublox_link_name"),
-                                    " right_ublox_link_name:=",         # add
-                                    LaunchConfiguration("right_ublox_link_name"),
+                                    " lg580p_link_name:=",    
+                                    LaunchConfiguration("lg580p_link_name"),
                                     " use_vectornav:=",
                                     LaunchConfiguration("use_vectornav"),
                                 ]

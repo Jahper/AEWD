@@ -8,9 +8,3 @@ navsat_transform:
     publish_filtered_gps: false
     use_odometry_yaw: false
     wait_for_datum: false
-
-    # TODO: with rtk make more pricise 
-    # ~3m std dev without RTK
-    override_fix_covariance: [9.0, 0.0, 0.0,    
-                               0.0, 9.0, 0.0,
-                               0.0, 0.0, 9.0]

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro
+      name="lg580p"
+      params="parent_link lg580p_link_name joint_origin_xyz joint_origin_rpy">
+
+    <link name="${lg580p_link_name}"/>
+
+    <joint name="${lg580p_link_name}_joint" type="fixed">
+      <origin xyz="${joint_origin_xyz}"
+              rpy="${joint_origin_rpy}"/>
+      <parent link="${parent_link}"/>
+      <child link="${lg580p_link_name}"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>
