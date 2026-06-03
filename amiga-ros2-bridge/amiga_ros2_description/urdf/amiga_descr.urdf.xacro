@@ -65,7 +65,7 @@
   <xacro:gps
     parent_link="base_link"
     gps_link_name="$(arg gps_link_name)"
-    joint_origin_xyz="0.30508 0 1.0163"
+    joint_origin_xyz="-0.35312 0.56219 0.43414"
     joint_origin_rpy="0 0 0"/>
 
   <!-- SELF ADDED CODE SELF ADDED CODE lg580p  -->

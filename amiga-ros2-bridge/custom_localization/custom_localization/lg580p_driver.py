@@ -122,6 +122,11 @@ class LG580PDriver(Node):
             self.read_serial
         )
 
+        self.publish_timer = self.create_timer(
+            0.1,
+            self.publish_ros_messages
+        )
+
         self.status_timer = self.create_timer(
             1.0,
             self.print_status
@@ -397,8 +402,6 @@ class LG580PDriver(Node):
     # Console status
     #
     def print_status(self):
-
-        self.publish_ros_messages()
 
         #
         # Quality according to Quectel/Sparkfun docs
