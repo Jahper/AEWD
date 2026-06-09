@@ -407,9 +407,11 @@ class LG580PDriver(Node):
             0.0,     0.0,     0.05
         ]
 
-        self.heading_pub.publish(
-            imu
-        )
+        if not self.heading_valid():
+            return
+
+        self.heading_pub.publish(imu)
+
 
     #
     # Console status
