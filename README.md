@@ -1,3 +1,226 @@
-# AEWD
+# AEWD — Autonomous Electric Tool Carrier
 
-a broken build purely focused on getting a minimum working product.
+**AEWD** (Autonome Elektrische Werktuig Drager) is a robot designed to drive autonomously within strip cropping (strokenteelt) agricultural environments.
+
+This repository contains a proof-of-concept navigation stack based on the [Amiga ROS Bridge](https://github.com/farm-ng/amiga-ros-bridge). The Amiga platform was chosen because all prototyping took place on it.
+
+The repository includes a working `Dockerfile` to set up the bridge without build errors and with all dependencies required to run Nav2. In the future, replacing the bridge entirely would be a worthwhile improvement — currently only the Amiga streams and `Twist` are used to forward `cmd_vel` commands from Nav2 to the Amiga.
+
+---
+
+## Table of Contents
+
+- [GPS Setup](#gps-setup)
+- [Getting Started](#getting-started)
+  - [Step 1 — Install Dependencies](#step-1--install-dependencies)
+  - [Step 2 — Clone the Repository](#step-2--clone-the-repository)
+  - [Step 3 — Build the Docker Image](#step-3--build-the-docker-image)
+  - [Step 4 — Open the First Terminal](#step-4--open-the-first-terminal)
+  - [Step 5 — Open Additional Terminals](#step-5--open-additional-terminals)
+  - [Step 6 — Connect to the Amiga](#step-6--connect-to-the-amiga)
+  - [Step 7 — Build the Workspace](#step-7--build-the-workspace)
+  - [Step 8 — Start Amiga Streams](#step-8--start-amiga-streams)
+  - [Step 9 — Start Twist](#step-9--start-twist)
+  - [Step 10 — Launch Custom Localisation](#step-10--launch-custom-localisation)
+  - [Step 11 — Create an Empty Map for Nav2](#step-11--create-an-empty-map-for-nav2)
+  - [Step 12 — Launch Nav2](#step-12--launch-nav2)
+  - [Step 13 — Start RViz2](#step-13--start-rviz2)
+
+---
+
+## GPS Setup
+
+Two Intelligence Kits are mounted on the Amiga and used as GPS antennas. These antennas connect to an **LG580P GPS chip**, which also determines the heading used for odometry.
+
+**Important notes:**
+- The **left antenna** must be configured as the **primary antenna**.
+- The **right antenna** is used primarily for heading determination.
+- The system uses **GPS RTK**, so setting up a reliable base station is essential.
+- If the Intelligence Kits are relocated on the robot, the **robot description must be updated** to reflect the new positions.
+
+---
+
+## Getting Started
+
+All steps below must be followed **in order**.
+
+### Step 1 — Install Dependencies
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt install git
+sudo apt install python3
+sudo apt install docker.io
+```
+
+### Step 2 — Clone the Repository
+
+```bash
+git clone https://github.com/Jahper/AEWD.git
+```
+
+### Step 3 — Build the Docker Image
+
+```bash
+sudo make build-image udev
+```
+
+### Step 4 — Open the First Terminal
+
+```bash
+cd AEWD/amiga-ros2-bridge
+sudo make bash
+```
+
+### Step 5 — Open Additional Terminals
+
+For each additional terminal needed, run:
+
+```bash
+cd AEWD/amiga-ros2-bridge
+sudo make shell
+```
+
+### Step 6 — Connect to the Amiga
+
+Connect to the Amiga via **Wi-Fi** or **Ethernet**. The Ethernet connection is recommended for better performance and reliability.
+
+#### Connecting via Ethernet (Ubuntu)
+
+**1. Connect the Ethernet cable**
+
+Plug the Ethernet cable directly between your Ubuntu laptop and the robot's Ethernet port.
+
+**2. Find the robot's IP address**
+
+On the robot's debug terminal:
+
+```bash
+ip addr show eth0
+```
+
+Look for the `inet` line, for example:
+
+```
+inet 10.95.76.1/24 scope global eth0
+```
+
+- Robot IP: `10.95.76.1`
+- Subnet: `/24`
+
+**3. Configure the laptop's Ethernet interface**
+
+First, find your laptop's Ethernet interface name:
+
+```bash
+ip addr
+```
+
+Common interface names: `eth0`, `enp0s31f6`, `eno1`
+
+Then assign an IP address in the same subnet:
+
+```bash
+sudo ip addr flush dev enp0s31f6
+sudo ip addr add 10.95.76.2/24 dev enp0s31f6
+sudo ip link set enp0s31f6 up
+```
+
+> Replace `enp0s31f6` with your actual interface name, and `10.95.76.2` with any free IP in the same subnet.
+
+**4. Test the connection**
+
+```bash
+ping 10.95.76.1
+```
+
+If you receive replies, the Ethernet connection is working.
+
+**5. Update the bridge configuration**
+
+In `service_config.json`, set all `host` fields to the robot's IP address:
+
+```json
+"host": "10.95.76.1"
+```
+
+**6. Restart the bridge software**
+
+```bash
+sudo systemctl restart amiga-ros2-bridge
+```
+
+Or re-run the ROS2 launch command.
+
+#### Typical Working Setup
+
+| Device | IP Address |
+|--------|------------|
+| Robot  | `10.95.76.1` |
+| Laptop | `10.95.76.2` |
+| Connection | Direct Ethernet cable |
+
+This setup provides stable ROS2 bridge communication, reliable CAN command delivery, and better performance than Wi-Fi or hotspot.
+
+#### Useful Debugging Commands
+
+```bash
+# Show laptop network interfaces
+ip addr
+
+# Check robot Ethernet interface
+ip addr show eth0
+
+# Test if the bridge port is reachable
+nc -vz 10.95.76.1 6001
+
+# Show listening services on the robot
+ss -tulpn
+```
+
+---
+
+### Step 7 — Build the Workspace
+
+```bash
+colcon build
+source install/setup.bash
+make description
+```
+
+### Step 8 — Start Amiga Streams
+
+```bash
+make amiga-streams
+```
+
+### Step 9 — Start Twist
+
+```bash
+make twist
+```
+
+### Step 10 — Launch Custom Localisation
+
+```bash
+ros2 launch custom_localization gps.launch.py
+```
+
+### Step 11 — Create an Empty Map for Nav2
+
+```bash
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
+```
+
+### Step 12 — Launch Nav2
+
+```bash
+ros2 launch custom_navigation nav2.launch.py
+```
+
+### Step 13 — Start RViz2
+
+```bash
+rviz2
+```
