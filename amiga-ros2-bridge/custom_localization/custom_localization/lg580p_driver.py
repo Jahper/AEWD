@@ -38,6 +38,11 @@ class LG580PDriver(Node):
             "lg580p_link"
         )
 
+        self.declare_parameter(
+            "antenna_offset_deg",
+            90.0  # default: antennas side-by-side (West=0 convention)
+        )
+
         self.port = self.get_parameter(
             "port"
         ).value
@@ -48,6 +53,10 @@ class LG580PDriver(Node):
 
         self.frame = self.get_parameter(
             "gps_frame"
+        ).value
+
+        self.antenna_offset_deg = self.get_parameter(
+            "antenna_offset_deg"
         ).value
 
         #
@@ -97,6 +106,10 @@ class LG580PDriver(Node):
             f"Frame     : {self.frame}"
         )
 
+        self.get_logger().info(
+            f"Antenna offset: {self.antenna_offset_deg} deg"
+        )
+
         #
         # Serial
         #
@@ -123,7 +136,7 @@ class LG580PDriver(Node):
         )
 
         self.publish_timer = self.create_timer(
-            0.1,
+            0.05,
             self.publish_ros_messages
         )
 
@@ -362,14 +375,14 @@ class LG580PDriver(Node):
         imu.header.frame_id = self.frame
 
         #
-        # GNSS heading:
+        # GNSS heading conversion:
         #
-        # 0 deg = North
-        # 90 deg = East
+        # Chip convention  : antenna_offset_deg = 0 -> West=0, clockwise increase
+        #                    antenna_offset_deg = 90 -> North=0, clockwise increase (standard NMEA)
+        # ROS/ENU convention: East=0, counter-clockwise increase
         #
         yaw_deg = (
-            90.0 -
-            self.heading_deg
+            (90.0 - (self.heading_deg - self.antenna_offset_deg)) % 360.0
         )
 
         yaw_rad = math.radians(
@@ -427,7 +440,8 @@ class LG580PDriver(Node):
             "=====================================================\n"
             f"UTC Time            : {self.utc_time}\n"
             f"Heading Quality     : {self.tar_quality} ({quality_str})\n"
-            f"Heading             : {self.heading_deg:.3f} deg\n"
+            f"Heading (chip)      : {self.heading_deg:.3f} deg\n"
+            f"Heading (published) : {((90.0 - (self.heading_deg - self.antenna_offset_deg))%360):.3f} deg (ENU)\n"
             f"Heading Accuracy    : {self.acc_heading_deg:.3f}\n"
             f"Pitch               : {self.pitch_deg:.3f} deg\n"
             f"Pitch Accuracy      : {self.acc_pitch_deg:.3f}\n"

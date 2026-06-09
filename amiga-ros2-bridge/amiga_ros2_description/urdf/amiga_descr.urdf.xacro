@@ -73,13 +73,11 @@
   <!-- SELF ADDED CODE SELF ADDED CODE lg580p  -->
 
   <!-- lg580p RTK -->
-  <!-- TODO: tijdelijk gerbuikte waarden terugzetten naar origineel! -->
   <xacro:lg580p
     parent_link="base_link"
     lg580p_link_name="$(arg lg580p_link_name)"
-    joint_origin_xyz="0.30508 0 1.0163"
+    joint_origin_xyz="-0.04 0.56219 1.04"
     joint_origin_rpy="0 0 0"/>
-    <!-- joint_origin_xyz="0.30508 0.56219 0.2341" -->
 
 
   

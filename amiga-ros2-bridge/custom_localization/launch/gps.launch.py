@@ -40,6 +40,13 @@ def generate_launch_description():
             "gps_frame",
             default_value="lg580p_link"
         ),
+        DeclareLaunchArgument(
+            "antenna_offset_deg",
+            default_value="90.0",
+            description="Heading offset in degrees due to antenna placement. "
+                        "90.0 = antennas side-by-side (West=0 clockwise). "
+                        "0.0 = antennas front-back (North=0 clockwise, standard NMEA)."
+        ),
         Node(
             package="custom_localization",
             executable="lg580p_driver_node",
@@ -49,6 +56,7 @@ def generate_launch_description():
                     "port": LaunchConfiguration("gps_port"),
                     "baud": LaunchConfiguration("gps_baud"),
                     "gps_frame": LaunchConfiguration("gps_frame"),
+                    "antenna_offset_deg": LaunchConfiguration("antenna_offset_deg"),
                 }
             ],
             output="screen",
