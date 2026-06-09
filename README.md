@@ -2,7 +2,7 @@
 
 **AEWD** (Autonome Elektrische Werktuig Drager) is a robot designed to drive autonomously within strip cropping (strokenteelt) agricultural environments.
 
-This repository contains a proof-of-concept navigation stack based on the [Amiga ROS Bridge](https://github.com/farm-ng/amiga-ros-bridge). The Amiga platform was chosen because all prototyping took place on it.
+This repository contains a proof-of-concept navigation stack based on the [Amiga ROS Bridge](https://github.com/ucmercedrobotics/amiga-ros2-bridge). The Amiga platform was chosen because all prototyping took place on it.
 
 The repository includes a working `Dockerfile` to set up the bridge without build errors and with all dependencies required to run Nav2. In the future, replacing the bridge entirely would be a worthwhile improvement — currently only the Amiga streams and `Twist` are used to forward `cmd_vel` commands from Nav2 to the Amiga.
 
@@ -10,7 +10,9 @@ The repository includes a working `Dockerfile` to set up the bridge without buil
 
 ## Table of Contents
 
+- [Hardware List](#hardware-list)
 - [GPS Setup](#gps-setup)
+- [IMU Setup](#imu-setup)
 - [Getting Started](#getting-started)
   - [Step 1 — Install Dependencies](#step-1--install-dependencies)
   - [Step 2 — Clone the Repository](#step-2--clone-the-repository)
@@ -28,15 +30,35 @@ The repository includes a working `Dockerfile` to set up the bridge without buil
 
 ---
 
+## Hardware List
+
+| Component | Description |
+|-----------|-------------|
+| Amiga | Main robot platform |
+| 2× Amiga Intelligence Kit / u-blox GPS Antenna | GPS antennas mounted on the robot (left = primary, right = heading) |
+| LG580P GPS chip | Processes GPS signals and determines heading for odometry |
+| ZED-F9P chip + u-blox antenna | RTK base station for centimetre-level positioning accuracy |
+| BNO055 IMU | Inertial Measurement Unit for orientation and motion data |
+| ESP32 | Microcontroller used to read and forward IMU data |
+| Jetson / Laptop | Runs the ROS2 bridge and navigation stack |
+
+---
+
 ## GPS Setup
 
 Two Intelligence Kits are mounted on the Amiga and used as GPS antennas. These antennas connect to an **LG580P GPS chip**, which also determines the heading used for odometry.
 
 **Important notes:**
-- The **left antenna** must be configured as the **primary antenna**.
-- The **right antenna** is used primarily for heading determination.
+- The **left antenna** must be configured as the **primary antenna**, plugged into slot 1.
+- The **right antenna** is used primarily for heading determination, pligged into slot 2.
 - The system uses **GPS RTK**, so setting up a reliable base station is essential.
-- If the Intelligence Kits are relocated on the robot, the **robot description must be updated** to reflect the new positions.
+- If the Intelligence Kits are relocated on the robot, the [robot description](https://github.com/Jahper/AEWD/blob/full-custom-nav2/amiga-ros2-bridge/amiga_ros2_description/urdf/amiga_descr.urdf.xacro) **must be updated** to reflect the new positions.
+
+---
+
+## IMU Setup
+
+// TODO
 
 ---
 
@@ -58,6 +80,7 @@ sudo apt install docker.io
 
 ```bash
 git clone https://github.com/Jahper/AEWD.git
+cd AEWD/amiga-ros2-bridge
 ```
 
 ### Step 3 — Build the Docker Image
@@ -69,7 +92,6 @@ sudo make build-image udev
 ### Step 4 — Open the First Terminal
 
 ```bash
-cd AEWD/amiga-ros2-bridge
 sudo make bash
 ```
 
@@ -144,22 +166,6 @@ In `service_config.json`, set all `host` fields to the robot's IP address:
 ```json
 "host": "10.95.76.1"
 ```
-
-**6. Restart the bridge software**
-
-```bash
-sudo systemctl restart amiga-ros2-bridge
-```
-
-Or re-run the ROS2 launch command.
-
-#### Typical Working Setup
-
-| Device | IP Address |
-|--------|------------|
-| Robot  | `10.95.76.1` |
-| Laptop | `10.95.76.2` |
-| Connection | Direct Ethernet cable |
 
 This setup provides stable ROS2 bridge communication, reliable CAN command delivery, and better performance than Wi-Fi or hotspot.
 
