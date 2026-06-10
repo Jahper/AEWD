@@ -4,6 +4,7 @@
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
+#include <rmw_microros/timing.h>
 
 #include "sensor_msgs/msg/imu.h"
 
@@ -18,13 +19,13 @@ const char * topic_name = "imu";
 sensor_msgs__msg__Imu* imu_msg;
 
 rclc_executor_t executor;
-const unsigned int max_executor_timeout = 100;
+const unsigned int max_executor_timeout = 10;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 const char * node_name = "imu_node";
 rcl_timer_t timer;
-const unsigned int timer_timeout = 100;
+const unsigned int timer_timeout = 50;
 int flash_count = 0;
 
 
@@ -98,6 +99,10 @@ void ImuPublisher::init(int baud){
 
 void ImuPublisher::update_msg(sensor_msgs__msg__Imu* msg){
     imu_msg = msg;
+    int64_t now_ns = rmw_uros_epoch_nanos();
+    imu_msg->header.frame_id.data = "bno055";
+    imu_msg->header.stamp.sec = (int32_t)(now_ns/1000000000ULL);
+    imu_msg->header.stamp.nanosec = (int32_t)(now_ns % 1000000000ULL);
 }
 
 void ImuPublisher::step(){

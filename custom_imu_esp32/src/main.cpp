@@ -8,7 +8,7 @@
 #include "sensor_msgs/msg/imu.h"
 
 const int BAUD = 115200;
-const int UPDATE_DELAY_MS = 100;
+const int UPDATE_DELAY_MS = 10;
 bool isCalibrated = true; // set false if you want to wait for full calibration 
 unsigned long lastTime = 0;
 
