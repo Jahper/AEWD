@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.substitutions import LaunchConfiguration
 
 from ament_index_python.packages import get_package_share_directory
@@ -13,7 +13,8 @@ import os
 def generate_launch_description():
 
     pkg_dir = get_package_share_directory('custom_localization')
-
+    imu_port = LaunchConfiguration('imu_port')
+    imu_baud = LaunchConfiguration('imu_baud')
 
     navsat_file = os.path.join(
         pkg_dir,
@@ -40,6 +41,16 @@ def generate_launch_description():
             "gps_frame",
             default_value="lg580p_link"
         ),
+
+        DeclareLaunchArgument(
+            "imu_port",
+            default_value="/dev/ttyUSB0"
+        ),
+         DeclareLaunchArgument(
+            "imu_baud",
+            default_value="115200"
+        ),
+
         DeclareLaunchArgument(
             "antenna_offset_deg",
             default_value="90.0",
@@ -47,6 +58,17 @@ def generate_launch_description():
                         "90.0 = antennas side-by-side (West=0 clockwise). "
                         "0.0 = antennas front-back (North=0 clockwise, standard NMEA)."
         ),
+        ExecuteProcess(
+        cmd=[
+            'ros2', 'run',
+            'micro_ros_agent', 'micro_ros_agent',
+            'serial',
+            '--dev', imu_port,
+            '-b', imu_baud,
+        ],
+        output='screen'
+        ),
+
         Node(
             package="custom_localization",
             executable="lg580p_driver_node",
@@ -82,4 +104,6 @@ def generate_launch_description():
 
             parameters=[ekf_file]
         )
+
+
     ])
