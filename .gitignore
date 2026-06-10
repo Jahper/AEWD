@@ -31,6 +31,7 @@
 *.la
 *.a
 *.lib
+!custom_imu_esp32/lib/*
 
 # Executables
 *.exe
@@ -231,3 +232,4 @@ meshes/
 rosbag2*
 
 runs/
+
