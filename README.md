@@ -24,9 +24,8 @@ The repository includes a working `Dockerfile` to set up the bridge without buil
   - [Step 8 — Start Amiga Streams](#step-8--start-amiga-streams)
   - [Step 9 — Start Twist](#step-9--start-twist)
   - [Step 10 — Launch Custom Localisation](#step-10--launch-custom-localisation)
-  - [Step 11 — Create an Empty Map for Nav2](#step-11--create-an-empty-map-for-nav2)
-  - [Step 12 — Launch Nav2](#step-12--launch-nav2)
-  - [Step 13 — Start RViz2](#step-13--start-rviz2)
+  - [Step 11 — Launch Nav2](#step-11--launch-nav2)
+  - [Step 12 — Start RViz2](#step-12--start-rviz2)
 
 ---
 
@@ -58,7 +57,11 @@ Two Intelligence Kits are mounted on the Amiga and used as GPS antennas. These a
 
 ## IMU Setup
 
-// TODO
+The IMU firmware can be found [here](https://github.com/Jahper/AEWD/tree/full-custom-nav2/custom_imu_esp32) and must be flashed onto an ESP32 using **PlatformIO**. Connect the IMU using the default **I2C pins**.
+
+**Important notes:**
+- The IMU is **optional** — the Amiga can operate without it.
+- When GPS accuracy is low, the IMU provides corrections to maintain reliable localisation.
 
 ---
 
@@ -89,10 +92,26 @@ cd AEWD/amiga-ros2-bridge
 sudo make build-image udev
 ```
 
-### Step 4 — Open the First Terminal
+### Step 4 — Open the First Terminal and build MicroRos Agent
 
 ```bash
 sudo make bash
+
+source /opt/ros/$ROS_DISTRO/setup.bash
+
+mkdir imu_agent && cd imu_agent
+
+git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
+
+rosdep update && rosdep install --from-paths src --ignore-src -y
+
+colcon build
+
+source install/local_setup.bash
+
+ros2 run micro_ros_setup create_agent_ws.sh
+ros2 run micro_ros_setup build_agent.sh
+source install/local_setup.sh
 ```
 
 ### Step 5 — Open Additional Terminals
@@ -213,19 +232,13 @@ make twist
 ros2 launch custom_localization gps.launch.py
 ```
 
-### Step 11 — Create an Empty Map for Nav2
-
-```bash
-ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
-```
-
-### Step 12 — Launch Nav2
+### Step 11 — Launch Nav2
 
 ```bash
 ros2 launch custom_navigation nav2.launch.py
 ```
 
-### Step 13 — Start RViz2
+### Step 12 — Start RViz2
 
 ```bash
 rviz2
