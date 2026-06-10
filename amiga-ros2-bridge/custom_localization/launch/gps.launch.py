@@ -58,22 +58,6 @@ def generate_launch_description():
                         "90.0 = antennas side-by-side (West=0 clockwise). "
                         "0.0 = antennas front-back (North=0 clockwise, standard NMEA)."
         ),
-        # Node(
-        #     package="micro_ros_agent",
-        #     executable="micro_ros_agent",
-        #     name="imu_agent",
-        #     output="screen",
-            
-        #     parameters=[{
-        #         'serial',
-        #         '--dev', 
-        #         imu_port,
-        #         '-b', 
-        #         imu_baud
-        #     }
-              
-        #     ]
-        # ),
         ExecuteProcess(
         cmd=[
             'ros2', 'run',
@@ -85,20 +69,20 @@ def generate_launch_description():
         output='screen'
         ),
 
-        # Node(
-        #     package="custom_localization",
-        #     executable="lg580p_driver_node",
-        #     name="lg580p_driver",
-        #     parameters=[
-        #         {
-        #             "port": LaunchConfiguration("gps_port"),
-        #             "baud": LaunchConfiguration("gps_baud"),
-        #             "gps_frame": LaunchConfiguration("gps_frame"),
-        #             "antenna_offset_deg": LaunchConfiguration("antenna_offset_deg"),
-        #         }
-        #     ],
-        #     output="screen",
-        # ),
+        Node(
+            package="custom_localization",
+            executable="lg580p_driver_node",
+            name="lg580p_driver",
+            parameters=[
+                {
+                    "port": LaunchConfiguration("gps_port"),
+                    "baud": LaunchConfiguration("gps_baud"),
+                    "gps_frame": LaunchConfiguration("gps_frame"),
+                    "antenna_offset_deg": LaunchConfiguration("antenna_offset_deg"),
+                }
+            ],
+            output="screen",
+        ),
         Node(
             package='robot_localization',
             executable='navsat_transform_node',
