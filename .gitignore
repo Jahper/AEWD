@@ -234,3 +234,5 @@ rosbag2*
 runs/
 !custom_imu_esp32/lib/
 !custom_imu_esp32/lib/**
+
+amiga-ros2-bridge/src/micro_ros_setup/
