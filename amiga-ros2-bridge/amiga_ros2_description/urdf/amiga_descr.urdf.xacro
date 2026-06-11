@@ -7,6 +7,7 @@
 
   <!-- CUSTOM CODE -->
   <xacro:arg name="lg580p_link_name" default="lg580p_link" />
+  <xacro:arg name="bno055_link_name" default="bno055" />
 
   <xacro:arg name="use_vectornav" default="false" />
 
@@ -17,6 +18,7 @@
 
   <!-- CUSTOM CODE -->
   <xacro:include filename="$(find amiga_ros2_description)/urdf/lg580p.urdf.xacro"/>
+  <xacro:include filename="$(find amiga_ros2_description)/urdf/bno055.urdf.xacro"/>
 
   <xacro:include filename="$(find amiga_ros2_description)/urdf/oak_d_w_poe.urdf.xacro"/>
   <xacro:include filename="$(find amiga_ros2_description)/urdf/vectornav.urdf.xacro"/>
@@ -68,10 +70,10 @@
     joint_origin_xyz="-0.343 0.27301 1.0163"
     joint_origin_rpy="0 0 0"/>
 
-  <!-- SELF ADDED CODE SELF ADDED CODE lg580p  -->
-  <!-- SELF ADDED CODE SELF ADDED CODE lg580p  -->
-  <!-- SELF ADDED CODE SELF ADDED CODE lg580p  -->
 
+
+  <!-- SELF ADDED CODE SELF ADDED CODE lg580p AND BNO055 -->
+ 
   <!-- lg580p RTK -->
   <xacro:lg580p
     parent_link="base_link"
@@ -79,8 +81,14 @@
     joint_origin_xyz="-0.09492 0.56219 1.04"
     joint_origin_rpy="0 0 0"/>
 
-
+  <!-- BNO055 IMU -->
+  <xacro:bno055
+    parent_link="base_link"
+    bno055_link_name="$(arg bno055_link_name)"
+    joint_origin_xyz="0.352875765322685 -0.562186930189418 0.0"
+    joint_origin_rpy="0 0 0"/>
   
+
   <!-- IMU -->
   <xacro:if value="$(arg use_vectornav)">
     <xacro:vectornav

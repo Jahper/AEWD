@@ -39,6 +39,11 @@ def generate_launch_description():
                 description="TF frame name for the lg580p primairy antenna",
             ),
             DeclareLaunchArgument(
+                name="bno055_link_name",
+                default_value="bno055",
+                description="TF frame name for the bno055 IMU",
+            ),
+            DeclareLaunchArgument(
                 name="use_vectornav",
                 default_value="false",
                 description="Whether to use VectorNav IMU instead of BNO085",
@@ -68,6 +73,8 @@ def generate_launch_description():
                                     LaunchConfiguration("gps_link_name"),
                                     " lg580p_link_name:=",    
                                     LaunchConfiguration("lg580p_link_name"),
+                                    " bno055_link_name:=",
+                                    LaunchConfiguration("bno055_link_name"),
                                     " use_vectornav:=",
                                     LaunchConfiguration("use_vectornav"),
                                 ]
