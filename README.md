@@ -51,13 +51,13 @@ Two Intelligence Kits are mounted on the Amiga and used as GPS antennas. These a
 - The **left antenna** must be configured as the **primary antenna**, plugged into slot 1.
 - The **right antenna** is used primarily for heading determination, pligged into slot 2.
 - The system uses **GPS RTK**, so setting up a reliable base station is essential.
-- If the Intelligence Kits are relocated on the robot, the [robot description](https://github.com/Jahper/AEWD/blob/full-custom-nav2/amiga-ros2-bridge/amiga_ros2_description/urdf/amiga_descr.urdf.xacro) **must be updated** to reflect the new positions.
+- If the Intelligence Kits are relocated on the robot, the [robot description](https://github.com/Jahper/AEWD/blob/main/amiga-ros2-bridge/amiga_ros2_description/urdf/amiga_descr.urdf.xacro) **must be updated** to reflect the new positions.
 
 ---
 
 ## IMU Setup
 
-The IMU firmware can be found [here](https://github.com/Jahper/AEWD/tree/full-custom-nav2/custom_imu_esp32) and must be flashed onto an ESP32 using **PlatformIO**. Connect the IMU using the default **I2C pins**.
+The IMU firmware can be found [here](https://github.com/Jahper/AEWD/tree/main/custom_imu_esp32) and must be flashed onto an ESP32 using **PlatformIO**. Connect the IMU using the default **I2C pins**.
 
 **Important notes:**
 - The IMU is **optional** — the Amiga can operate without it.
