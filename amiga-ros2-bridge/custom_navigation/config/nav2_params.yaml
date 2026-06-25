@@ -1,58 +1,34 @@
-# --------------------------------------------------------------------------
-# KNOWN REMAINING LIMITATION:
-# Goals directly behind the robot (~180° turn) are imperfect. NavFn generates
-# a curved arc path; DWB tries to follow it but the curves are large on a big
-# robot. This is a fundamental DWB limitation for differential-drive robots
-# with large footprints. If 180° turns need to be reliable, consider switching
-# FollowPath to RegulatedPurePursuit which has a built-in in-place rotation
-# phase for large angular errors.
-# =============================================================================
+# This file started out as a copy of the default nav2_params.yaml, but has been heavily modified for the Amiga robot.
 #
-# CHANGES FROM BOTH ORIGINAL FILES (v1 — still in effect):
+# this was the command: cp /opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml custom_navigation/config/nav2_params.yaml
 #
-# [1] RotateToGoal critic REMOVED
-#     Root cause of "turns 90° before driving" and "spins at goal" in old.txt.
-#     Without it, DWB no longer tries to perfectly align heading before moving.
-#
-# [2] min_speed_theta: 0.20  (was 0.0 in both files)
-#     Root cause of motor oscillation in nav2.txt. Large wheels + high grip
-#     means tiny theta commands stall and bounce. DWB now only samples angular
-#     velocities that are either 0 (straight) or >= 0.20 rad/s (real turn).
-#
-# [3] acc_lim_theta / rotational_acc_lim raised to 1.2
-#     Low values (0.5 in nav2.txt) produced motor commands too weak to overcome
-#     static friction. The robot needs a firm initial torque input to actually spin.
-#
-# [4] yaw_goal_tolerance: 3.14  (was 0.25 in both files)
-#     For an agricultural robot driving between waypoints we don't care which
-#     direction the robot faces when it arrives. Removing this was causing the
-#     endless goal-area spin/backup loop in old.txt.
-#
-# [5] xy_goal_tolerance: 0.50  (was 0.25 in both files)
-#     Appropriate for a 2m-wide outdoor robot. Prevents the jitter/retry loop
-#     when GPS noise puts the robot 0.3m "off" goal.
-#
-# [6] GoalAlign.scale: 4.0  (was 24.0 old / 8.0 new)
-#     With yaw_goal_tolerance wide open, a high GoalAlign scale still caused
-#     the robot to twist toward the goal direction while approaching. Now low.
-#
-# [7] PathAlign.forward_point_distance: 0.3  (was 0.1 in both files)
-#     Evaluates alignment against a point 0.3m ahead on path instead of 0.1m.
-#     Result: smoother, more anticipatory steering — lazy curves for small
-#     angular offsets rather than sharp correction twitches.
-#
-# [8] max_vel_theta: 0.5  (was 1.0 old / 0.3 new)
-#     Old was too fast (overshoot), new was too slow (stall). 0.5 rad/s is
-#     ~29 deg/s which is firm enough to turn but won't whip past the target.
-#
-# [9] Robot radius updated to 1.1m (from 0.22 old / 0.80 new)
-#     Circumscribed radius of a 2m x 1m body ≈ sqrt(1² + 0.5²) ≈ 1.12m.
-#     Previous values were TurtleBot3 defaults — far too small for the Amiga.
-#
-# [10] velocity_smoother max_accel aligned with controller acc_lim values
-#      Previously the smoother had different limits than the controller,
-#      causing inconsistent velocity ramp behaviour.
-# =============================================================================
+# Changes too numerous to list here. 
+# A lot of parameters have been changed in a attempt to have the project build, the project then did not build, but we kept the changes anyway.
+# Due to time presure we could not optimise the parameters, a lot of them are likely wrong.
+
+# Known capabilities of this Nav2 stack:
+# -  It can drive in a 100x100m field.
+# -  It is higly succesful at completing a waypoint first try. (if the waypoint is placed correctly, see known issues)
+# -  It can turn on the spot.
+# -  It can turn while driving.
+# -  Automatic recovery behavior exist. But is unlikely to help when stuck.
+
+# Known issues of the this nav2 stack:
+# -  Placing a waypoint behind the robot will garentee recovery behavior to be triggered. And the goal will most likely fail.
+#    When a waypoint is placed more then 90 degrees from the current heading it will fail to reach the waypoint. This is likely because of the controller server.
+#    As of now the controller server is of type DWB controller, The default controller from the turtlebot, which is known to have this issue. (see our suggested actions below)
+# -  Persision is terrible, we had to keep tolerances very high to get the robot to reach waypoints.
+
+# Suggested actions:
+# -  Change the controller server to a different controller. The RegulatedPurePersuit controller should work: 
+#    https://github.com/ros-navigation/navigation2/tree/main/nav2_regulated_pure_pursuit_controller
+#    However, our original plan was to make a hyper presice navigation stack for archicultural use. for that this controller would work even better:
+#    https://github.com/decwest/nav2_dynamic_window_pure_pursuit_controller/tree/humble
+#    See if you can make the DWPP controller work.
+# -  change backup behavior to be a simple stop, or drive back and restart navigating. The goal was to have the robot never drive over plants while tilling.
+#    However, we did not have the time to change the default turtlebot behavior.
+# -  There might be some nodes or parameters that are not needed. Their purpourse was to serve a turtlebot with slam, not a GPS-RTK Amiga robot. but we did not have the time to clean up the code.
+#    We suggest you research the nav2 stack and remove any unneeded nodes or parameters. This will make it easier to understand and modify the code.
 
 bt_navigator:
   ros__parameters:
@@ -109,31 +85,29 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
-      movement_time_allowance: 15.0   # extra allowance — large robot, needs time to spin up
+      movement_time_allowance: 15.0
 
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.50         # [4+5] 50 cm — outdoor ag robot, GPS noise is real
-      yaw_goal_tolerance: 3.14159     # [4] don't care about final heading at waypoint
+      # these should be reverted to presice values post controller fix
+      xy_goal_tolerance: 0.50 # larger goal tolerance otherwise the bot wil furiously spin in circles trying to reach the exact waypoint
+      yaw_goal_tolerance: 3.14159 # 360 degrees, the bot does not care about heading
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
 
-      # --- Velocity limits ---
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.60              # comfortable field speed; raise later if desired
-      max_vel_y: 0.0               # differential drive — no lateral motion
-      max_vel_theta: 0.50          # [8] ~29 deg/s. Enough to turn, won't whip past target
+      max_vel_x: 0.60 # speed. can also be set on the amiga terminal.
+      max_vel_y: 0.0               
+      max_vel_theta: 0.50 # rotation speed. keep it high otherwise the bot will engage motors but strong grip and friction will prevent it from turning
       min_speed_xy: 0.0
       max_speed_xy: 0.60
-      min_speed_theta: 0.20        # [2] CRITICAL — no tiny stall-inducing turn commands
-                                   #     turns are either 0 (straight) or ≥0.20 rad/s (real)
+      min_speed_theta: 0.20 # minimum rotation speed. keep it high otherwise the bot will engage motors but strong grip and friction will prevent it from turning
 
-      # --- Acceleration limits ---
-      # [3] Raised acc_lim_theta: large wheels need firm initial torque to start spinning
+      # acceleration limits have been increased. needed to make the bot overcome the strong grip and friction of the wheels. otherwise it will not move
       acc_lim_x: 0.80
       acc_lim_y: 0.0
       acc_lim_theta: 1.20
@@ -141,37 +115,29 @@ controller_server:
       decel_lim_y: 0.0
       decel_lim_theta: -1.20
 
-      # --- Sampling ---
       vx_samples: 20
-      vy_samples: 1                # differential drive — only vy=0 is ever valid
-      vtheta_samples: 30           # more samples → better turn resolution
-      sim_time: 1.5                # slightly longer rollout for smoother trajectory scoring
+      vy_samples: 1             
+      vtheta_samples: 30         
+      sim_time: 1.5               
 
-      # --- Tolerances ---
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 0.5    # GPS can lag; be lenient with TF timestamps
-      xy_goal_tolerance: 0.50     # must match goal_checker value
+      transform_tolerance: 0.5    
+      xy_goal_tolerance: 0.50   
       trans_stopped_velocity: 0.20
       short_circuit_trajectory_evaluation: True
       stateful: True
 
-      # --- Critics ---
-      # [1] RotateToGoal REMOVED — was root cause of pre-drive spin and goal-area loops
-      # [6] GoalAlign scale very low — robot doesn't need to face any particular direction at goal
-      # [7] PathAlign forward_point_distance 0.3 — lazy curves, not sharp corrections
+      # removed turning in place bacause it just made the bot occilate in its place. can possibly fix the 180 degree turn issue by enabling it again, but we did not have time to fix it.
+      # replacing the controller with a better controller (RPP or DWPP) is still adviced, rather then waisting effort on fixing the DWB controller
       critics: ["Oscillation", "BaseObstacle", "PathAlign", "PathDist", "GoalDist", "GoalAlign"]
       BaseObstacle.scale: 0.02
       PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.30   # [7] look further ahead → smoother curves
+      PathAlign.forward_point_distance: 0.30
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
-      GoalAlign.scale: 4.0                     # [6] low — no heading fixation near goal
+      GoalAlign.scale: 4.0                  
       GoalAlign.forward_point_distance: 0.30
-
-# =============================================================================
-# Costmaps — robot_radius corrected from 0.22/0.80 to 1.1 for 2m-wide body
-# =============================================================================
 
 local_costmap:
   local_costmap:
@@ -182,15 +148,15 @@ local_costmap:
       robot_base_frame: base_link
       use_sim_time: False
       rolling_window: true
-      width: 6                     # larger window to fit the robot's turning radius
+      width: 6                     
       height: 6
       resolution: 0.05
-      robot_radius: 1.10           # [9] circumscribed radius of 2m × 1m body
+      robot_radius: 1.10 # 1.1m because the bot is about 2m wide
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 2.5
-        inflation_radius: 1.40     # safety margin beyond robot_radius
+        inflation_radius: 1.40 # even bigger than robot radius, to make turns as succesfull as possible.
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -230,11 +196,6 @@ global_costmap:
       robot_radius: 1.10
       resolution: 0.05
       track_unknown_space: true
-      # obstacle_layer REMOVED from global costmap intentionally.
-      # This is an open agricultural field — there are no permanent global obstacles
-      # to plan around. The local costmap (voxel_layer) handles real-time obstacle
-      # avoidance. Keeping obstacle_layer here only added noise to global planning
-      # and wasted CPU recomputing a 100m×100m obstacle grid at 1Hz.
       plugins: ["static_layer", "inflation_layer"]
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -300,9 +261,9 @@ behavior_server:
     transform_tolerance: 0.1
     use_sim_time: False
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.50       # [8] matches max_vel_theta
-    min_rotational_vel: 0.25       # [2] meaningful minimum — must actually spin the motors
-    rotational_acc_lim: 1.20       # [3] matches acc_lim_theta
+    max_rotational_vel: 0.50 # matches max_vel_theta
+    min_rotational_vel: 0.25 # higher than min_speed_theta to overcome grip of the wheels even better.
+    rotational_acc_lim: 1.20 # matches acc_lim_theta
 
 robot_state_publisher:
   ros__parameters:
@@ -325,9 +286,9 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.60, 0.0, 0.50]   # [10] aligned with controller limits
+    max_velocity: [0.60, 0.0, 0.50] # matches controller velocity limits
     min_velocity: [-0.60, 0.0, -0.50]
-    max_accel: [0.80, 0.0, 1.20]       # [10] aligned with acc_lim values
+    max_accel: [0.80, 0.0, 1.20] # matches controller acceleration limits
     max_decel: [-0.80, 0.0, -1.20]
     odom_topic: "/odometry/filtered"
     odom_duration: 0.1
