@@ -20,9 +20,10 @@ def generate_launch_description():
         'waypoint_follower',
         'velocity_smoother',
     ]
-    # No map_server, no amcl — GPS handles localization
 
     return LaunchDescription([
+        # This static transform publisher was added to fix some problems when adding the map did not work properly. 
+        # Now we managed to make the map work it might not be needed anymore. We did not have time to test it, and it works with it left in.
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -35,7 +36,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 params_file,
-                {'yaml_filename': map_file}   # ← override the params file value
+                {'yaml_filename': map_file}
             ]
         ),
         Node(
