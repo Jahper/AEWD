@@ -30,8 +30,7 @@ int flash_count = 0;
 
 
 
-// Error handle loop
-
+//Used to debug ros initialization (using print via serial interferes with ros messages)
 void error_flash(int count){
   for(int i = 0; i < count; i++){
     digitalWrite(LED_BUILTIN, HIGH);
@@ -40,6 +39,8 @@ void error_flash(int count){
     delay(500);
   }
 }
+
+// Error handle loop
 void error_loop() {
   while(1) {
     error_flash(flash_count);
@@ -62,6 +63,7 @@ void ImuPublisher::init(int baud){
     delay(1000);
     set_microros_serial_transports(Serial);
     delay(1000);
+    rmw_uros_sync_session(1000);
     digitalWrite(LED_BUILTIN, HIGH);
     allocator = rcl_get_default_allocator();
 

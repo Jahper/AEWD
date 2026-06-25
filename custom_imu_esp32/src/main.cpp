@@ -9,68 +9,81 @@
 
 const int BAUD = 115200;
 const int UPDATE_DELAY_MS = 10;
-bool isCalibrated = true; // set false if you want to wait for full calibration 
 unsigned long lastTime = 0;
-
-struct bno055_t BNO;
-struct bno055_euler eulerData;
-
-// calibration vars
-unsigned char accelCalibStatus = 0;
-unsigned char magCalibStatus = 0;
-unsigned char gyroCalibStatus = 0;
-unsigned char sysCalibStatus = 0;
-
-//functions
-void get_i2c_devices();
-void read_bno_information();
-bool calibrate_imu();
-void read_imu_data();
-
-
-void fill_ros_msg();
-void print_imu_data();
+const bool DEBUG_IMU = false; //True if just want to test imu in isolation, false to run microros aswell.
 
 ImuReader reader;
 ImuPublisher imu_publisher;
 sensor_msgs__msg__Imu msg;
 
+//covariance
+float cov_linear_accel;
+float cov_angular_vel;
+
+
+void fill_ros_msg();
+void print_imu_data();
+void print_imu_calib_status();
+
+
 void setup() 
 {
   reader.init();
+  if(DEBUG_IMU)return;
   imu_publisher.init(BAUD);
   fill_ros_msg();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
    if(millis() - lastTime >= UPDATE_DELAY_MS)
 	{
     lastTime = millis();
     reader.read_imu_data();
-    fill_ros_msg();
-    imu_publisher.update_msg(&msg);
-    imu_publisher.step();
-    // print_imu_data();
+    
+    //sets covariance based on calibration
+    bool imu_calibrated = (reader.get_calibration_status().sys == 3);
+    cov_angular_vel = imu_calibrated ? 0.05f : 0.1f;
+    cov_linear_accel = imu_calibrated ? 0.5f : 1.0f;
+
+    if(!DEBUG_IMU){
+      fill_ros_msg();
+      imu_publisher.update_msg(&msg);
+      imu_publisher.step();
+    }else{
+      print_imu_calib_status();
+      print_imu_data();
+    }
   }
 }
 
 void fill_ros_msg()
 {
     ImuData data = reader.get_data();
-    msg.orientation.x = data.qx;
-    msg.orientation.y = data.qy;
-    msg.orientation.z = data.qz;
+    msg.orientation.x = data.qy;
+    msg.orientation.y = data.qx;
+    msg.orientation.z = -data.qz;
     msg.orientation.w = data.qw;
+
+    msg.orientation_covariance[0] = 0.01;
+    msg.orientation_covariance[4] = 0.01;
+    msg.orientation_covariance[8] = 0.01;
 
     
     msg.angular_velocity.x = data.avx;
     msg.angular_velocity.y = data.avy;
     msg.angular_velocity.z = data.avz;   
+
+    msg.angular_velocity_covariance[0] = cov_angular_vel;
+    msg.angular_velocity_covariance[4] = cov_angular_vel;
+    msg.angular_velocity_covariance[8] = cov_angular_vel;
     
     msg.linear_acceleration.x = data.lax;
     msg.linear_acceleration.y = data.lay;
     msg.linear_acceleration.z = data.laz;
+
+    msg.linear_acceleration_covariance[0] = cov_linear_accel;
+    msg.linear_acceleration_covariance[4] = cov_linear_accel;
+    msg.linear_acceleration_covariance[8] = cov_linear_accel;
 }
 
 //quick debug to see if imu reads data
@@ -94,6 +107,20 @@ void print_imu_data(){
   Serial.print("avz: "); Serial.println(data.avz);
 }
 
+void print_imu_calib_status(){
+  CalibrationStatus status = reader.get_calibration_status();
+  Serial.print("Accel: ");
+  Serial.print(status.accel);
+
+  Serial.print(" | Mag: ");
+  Serial.print(status.mag);
+
+  Serial.print(" | Gyro: ");
+  Serial.print(status.gyro);
+
+  Serial.print(" | Sys: ");
+  Serial.println(status.sys);
+}
 
 
 

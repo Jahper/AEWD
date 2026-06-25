@@ -7,10 +7,10 @@ struct ImuData
 {
     unsigned long lastTime = 0;
     //quaternion
-    double qw = 0;
-    double qx = 0;
-    double qy = 0;
-    double qz = 0;
+    float qw = 0;
+    float qx = 0;
+    float qy = 0;
+    float qz = 0;
 
     //linear acceleration
     double lax = 0;
@@ -25,26 +25,34 @@ struct ImuData
 
 };
 
+struct CalibrationStatus{
+    // calibration vars
+    unsigned char accel = 0;
+    unsigned char mag = 0;
+    unsigned char gyro = 0;
+    unsigned char sys = 0;
+};
+
 class ImuReader
 {
 public:
     void init();
     void read_imu_data();
     ImuData get_data();
+    CalibrationStatus get_calibration_status();
 private:
     struct bno055_t BNO;
+    CalibrationStatus calibstatus;
     struct bno055_quaternion quaternion;
-    struct bno055_accel accel;
+    struct bno055_linear_accel accel;
     struct bno055_gyro gyro;
-    const float quat_scalar = 16384;
+    const float QUAT_SCALAR = 16384;
+    const float ACCEL_SCALAR_MS2 = 100;
+    const float GYRO_SCALAR_RPS = 900;
     
     ImuData data;
     
-    // calibration vars
-    unsigned char accelCalibStatus = 0;
-    unsigned char magCalibStatus = 0;
-    unsigned char gyroCalibStatus = 0;
-    unsigned char sysCalibStatus = 0;
+   
     
 };
   
