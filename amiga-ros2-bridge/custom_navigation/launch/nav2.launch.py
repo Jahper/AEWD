@@ -24,6 +24,12 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom']
+        ),
+        Node(
             package='nav2_map_server',
             executable='map_server',
             output='screen',
